@@ -227,7 +227,7 @@ func (g *Genesis) configOrDefault(ghash common.Hash) *params.ChainConfig {
 		return params.DevnetChainConfig
 	default:
 		log.Info("[configOrDefault] load AllEthashProtocolChanges", "hash", ghash)
-		return params.AllEthashProtocolChanges
+		return params.DevnetChainConfig
 	}
 }
 
