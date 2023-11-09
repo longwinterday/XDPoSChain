@@ -280,45 +280,46 @@ func (x *XDPoS_v1) checkSignersOnCheckpoint(chain consensus.ChainReader, header 
 	if common.IgnoreSignerCheckBlockArray[number] {
 		return nil
 	}
-	penPenalties := []common.Address{}
-	if x.HookPenalty != nil || x.HookPenaltyTIPSigning != nil {
-		var err error
-		if chain.Config().IsTIPSigning(header.Number) {
-			penPenalties, err = x.HookPenaltyTIPSigning(chain, header, signers)
-		} else {
-			penPenalties, err = x.HookPenalty(chain, number)
-		}
-		if err != nil {
-			return err
-		}
-		for _, address := range penPenalties {
-			log.Debug("Penalty Info", "address", address, "number", number)
-		}
-		bytePenalties := common.ExtractAddressToBytes(penPenalties)
-		if !bytes.Equal(header.Penalties, bytePenalties) {
-			return utils.ErrInvalidCheckpointPenalties
-		}
-	}
-	signers = common.RemoveItemFromArray(signers, penPenalties)
-	for i := 1; i <= common.LimitPenaltyEpoch; i++ {
-		if number > uint64(i)*x.config.Epoch {
-			signers = removePenaltiesFromBlock(chain, signers, number-uint64(i)*x.config.Epoch)
-		}
-	}
-	extraSuffix := len(header.Extra) - utils.ExtraSeal
-	masternodesFromCheckpointHeader := common.ExtractAddressFromBytes(header.Extra[utils.ExtraVanity:extraSuffix])
-	validSigners := utils.CompareSignersLists(masternodesFromCheckpointHeader, signers)
 
-	if !validSigners {
-		log.Error("Masternodes lists are different in checkpoint header and snapshot", "number", number, "masternodes_from_checkpoint_header", masternodesFromCheckpointHeader, "masternodes_in_snapshot", signers, "penList", penPenalties)
-		return utils.ErrInvalidCheckpointSigners
-	}
-	if x.HookVerifyMNs != nil {
-		err := x.HookVerifyMNs(header, signers)
-		if err != nil {
-			return err
-		}
-	}
+	//penPenalties := []common.Address{}
+	//if x.HookPenalty != nil || x.HookPenaltyTIPSigning != nil {
+	//	var err error
+	//	if chain.Config().IsTIPSigning(header.Number) {
+	//		penPenalties, err = x.HookPenaltyTIPSigning(chain, header, signers)
+	//	} else {
+	//		penPenalties, err = x.HookPenalty(chain, number)
+	//	}
+	//	if err != nil {
+	//		return err
+	//	}
+	//	for _, address := range penPenalties {
+	//		log.Debug("Penalty Info", "address", address, "number", number)
+	//	}
+	//	bytePenalties := common.ExtractAddressToBytes(penPenalties)
+	//	if !bytes.Equal(header.Penalties, bytePenalties) {
+	//		return utils.ErrInvalidCheckpointPenalties
+	//	}
+	//}
+	//signers = common.RemoveItemFromArray(signers, penPenalties)
+	//for i := 1; i <= common.LimitPenaltyEpoch; i++ {
+	//	if number > uint64(i)*x.config.Epoch {
+	//		signers = removePenaltiesFromBlock(chain, signers, number-uint64(i)*x.config.Epoch)
+	//	}
+	//}
+	//extraSuffix := len(header.Extra) - utils.ExtraSeal
+	//masternodesFromCheckpointHeader := common.ExtractAddressFromBytes(header.Extra[utils.ExtraVanity:extraSuffix])
+	//validSigners := utils.CompareSignersLists(masternodesFromCheckpointHeader, signers)
+	//
+	//if !validSigners {
+	//	log.Error("Masternodes lists are different in checkpoint header and snapshot", "number", number, "masternodes_from_checkpoint_header", masternodesFromCheckpointHeader, "masternodes_in_snapshot", signers, "penList", penPenalties)
+	//	return utils.ErrInvalidCheckpointSigners
+	//}
+	//if x.HookVerifyMNs != nil {
+	//	err := x.HookVerifyMNs(header, signers)
+	//	if err != nil {
+	//		return err
+	//	}
+	//}
 
 	return nil
 }
